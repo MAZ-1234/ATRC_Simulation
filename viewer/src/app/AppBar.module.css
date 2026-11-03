@@ -1,0 +1,76 @@
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  height: var(--appbar-h);
+  padding: 0 var(--page-margin);
+  background: var(--color-bg);
+  border-bottom: var(--stroke-hair) solid var(--color-border);
+  min-width: 0;
+}
+.name {
+  font-family: var(--font-display);
+  font-size: var(--fs-18);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-tight);
+  white-space: nowrap;
+  color: var(--color-text-1);
+}
+.tabs { display: flex; align-items: stretch; height: 100%; gap: var(--space-1); }
+.tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 var(--space-2);
+  border: 0;
+  background: transparent;
+  color: var(--color-text-2);
+  font-family: var(--font-ui);
+  font-size: var(--fs-15);
+  font-weight: var(--fw-medium);
+  transition: color var(--dur-fast) var(--ease);
+}
+.tab:hover { color: var(--color-text-1); }
+.tab:focus-visible { outline-offset: -4px; }
+.tabActive { color: var(--color-text-1); font-weight: var(--fw-semibold); }
+.tabActive::after {
+  content: "";
+  position: absolute;
+  left: var(--space-2);
+  right: var(--space-2);
+  bottom: -1px;
+  height: 2px;
+  background: var(--color-text-1);
+}
+.right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+.selectors { display: flex; align-items: center; gap: var(--space-3); }
+.selectors select { max-width: 190px; }
+.group { display: inline-flex; align-items: center; gap: var(--space-2); }
+.stacked { flex-direction: column; align-items: stretch; gap: var(--space-3); }
+.stacked select { max-width: 220px; }
+.stacked > * { justify-content: space-between; }
+
+@media (max-width: 1359px), (min-width: 1360px) and (max-height: 827px) {
+  .bar { gap: var(--space-4); }
+  .selectors { gap: var(--space-2); }
+  .selectors select { max-width: 150px; }
+  .tab { font-size: var(--fs-13); padding: 0 6px; }
+}
+@media (max-width: 1023px) {
+  .bar { gap: var(--space-3); }
+  .name { font-size: var(--fs-15); }
+}
+@media (max-width: 639px) {
+  .name { display: none; }
+  .tab { padding: 0 4px; }
+}

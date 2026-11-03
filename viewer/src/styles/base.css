@@ -1,0 +1,76 @@
+/* Element defaults. Components style themselves with CSS modules that read tokens.css. */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body, #root { min-height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text-1);
+  font-family: var(--font-ui);
+  font-size: var(--fs-15);
+  line-height: var(--lh-ui);
+  font-variant-numeric: tabular-nums lining-nums;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-tight);
+}
+h1 { font-size: var(--fs-21); }
+h2 { font-size: var(--fs-18); }
+h3 { font-size: var(--fs-15); }
+
+p { margin: 0; }
+p.prose, .prose p { line-height: var(--lh-prose); max-width: 68ch; }
+ul, ol { margin: 0; }
+
+a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+
+button, input, select, textarea {
+  font: inherit;
+  color: inherit;
+  font-variant-numeric: inherit;
+}
+button { cursor: pointer; }
+button:disabled { cursor: default; }
+
+table { border-collapse: collapse; font-size: var(--fs-13); }
+th { font-weight: var(--fw-medium); color: var(--color-text-2); text-align: left; }
+td.num, th.num { text-align: right; }
+
+/* DESIGN.md section 11: one focus ring for every interactive element. */
+:focus { outline: none; }
+:focus-visible {
+  outline: var(--stroke-bold) solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+::selection { background: var(--color-zone-wash); color: var(--color-text-1); }
+
+/* Screen-reader-only content (aria-live region, chart tables when hidden). */
+.sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0);
+  white-space: nowrap; border: 0;
+}
+
+/* Controller names in prose (DESIGN.md 3): controller text colour, weight 500. */
+.ctrl-baseline { color: var(--color-ctrl-baseline-text); font-weight: var(--fw-medium); }
+.ctrl-proposed { color: var(--color-ctrl-proposed-text); font-weight: var(--fw-medium); }
+.ctrl-other    { color: var(--color-ctrl-other); font-weight: var(--fw-medium); }
+
+/* Small text roles (DESIGN.md 3). */
+.caption   { font-size: var(--fs-12); color: var(--color-text-3); line-height: var(--lh-ui); }
+.secondary { font-size: var(--fs-13); color: var(--color-text-2); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; }
+}

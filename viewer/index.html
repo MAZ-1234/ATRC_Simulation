@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>EDGE-MLC mission viewer</title>
+    <meta name="description" content="Replay of the EDGE multi-link controller simulation: Baseline and Proposed on the same seed and terrain, with the results behind the comparison." />
+    <link rel="icon" href="data:," />
+    <script>
+      /* Apply a stored theme before first paint (no flash). Mirrors src/state/store.ts. */
+      (function () {
+        try {
+          var t = window.localStorage.getItem("edge-mlc-viewer.theme");
+          if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+          if (window.localStorage.getItem("edge-mlc-viewer.presenter") === "on") document.documentElement.setAttribute("data-presenter", "on");
+        } catch (e) { /* storage blocked */ }
+      })();
+    </script>
+    <!-- Simulation data: classic scripts that set window.SIM_* globals (works from file://).
+         Written by edge_mlc/sim/export_viewer.py into public/data/, copied to dist/data/. -->
+    <script src="./data/manifest.js"></script>
+    <script src="./data/scenario.js"></script>
+    <script src="./data/results.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

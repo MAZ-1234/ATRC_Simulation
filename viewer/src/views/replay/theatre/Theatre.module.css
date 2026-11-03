@@ -1,0 +1,141 @@
+/*
+ * Theatre (key F): camera feeds full screen. A fixed layer over the whole app on the
+ * theme's page background; the tiles stay video-black as everywhere else.
+ */
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 800; /* above the app bar (50), below popovers (900) and tooltips (1000) */
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5) var(--space-2);
+  /* surface-1, so the "Needed now" ring's gap colour matches the page */
+  background: var(--color-surface-1);
+  color: var(--color-text-1);
+  outline: none;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-width: 0;
+}
+.topControls { display: inline-flex; align-items: center; gap: var(--space-3); }
+.clockLine { display: inline-flex; align-items: baseline; gap: var(--space-3); min-width: 0; white-space: nowrap; }
+.clock {
+  font-family: var(--font-display);
+  font-size: var(--fs-24);
+  font-weight: var(--fw-semibold);
+  font-variant-numeric: tabular-nums;
+}
+.dim { color: var(--color-text-3); font-variant-numeric: tabular-nums; }
+.km { font-size: var(--fs-18); font-variant-numeric: tabular-nums; color: var(--color-text-2); }
+.man {
+  padding: 2px 8px;
+  border: var(--stroke-hair) solid var(--color-border-strong);
+  border-radius: var(--radius-1);
+  font-size: var(--fs-13);
+  font-weight: var(--fw-medium);
+  color: var(--color-text-2);
+}
+
+.stages {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr);
+  gap: var(--space-5);
+  min-height: 0;
+}
+.divider { background: var(--color-border); }
+
+.stage {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  min-width: 0;
+  min-height: 0;
+}
+.stageHead { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); min-width: 0; }
+.stageTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-24);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-tight);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sofar { font-size: var(--fs-15); color: var(--color-text-2); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.sofar b { font-family: var(--font-display); font-size: var(--fs-21); color: var(--color-text-1); font-weight: var(--fw-semibold); }
+
+.tileBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  /* room for the "Needed now" ring (2px gap + --tile-ring) outside the tile */
+  padding: 8px;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+.fig { margin: 0; display: flex; flex-direction: column; gap: 4px; flex: none; }
+.fig > span { height: 6px; } /* age bar */
+
+.verdict :global(p) { font-size: var(--fs-18); min-height: calc(2 * var(--lh-ui) * 1em + 10px); }
+
+.bottom {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-4);
+}
+.play {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-text-1);
+  color: var(--color-bg);
+  cursor: pointer;
+}
+.play:hover { opacity: 0.88; }
+
+.scrub { position: relative; height: 22px; min-width: 0; }
+.ribbons { position: absolute; inset: 0; display: block; border-radius: var(--radius-1); }
+.cursor {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--color-cursor);
+  pointer-events: none;
+}
+.range {
+  position: absolute;
+  inset: -6px 0;
+  width: 100%;
+  height: calc(100% + 12px);
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.range:focus-visible { opacity: 0.001; }
+.scrub:focus-within { outline: 2px solid var(--color-focus); outline-offset: 4px; border-radius: var(--radius-1); }
+
+.note { margin: 0; font-size: var(--fs-12); color: var(--color-text-3); }
+
+@media (max-width: 1023px) {
+  .root { padding-inline: var(--space-3); }
+  .top { flex-wrap: wrap; } /* the tour card (key G) takes its own line */
+  .stages { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) 1px minmax(0, 1fr); gap: var(--space-3); }
+  .bottom { grid-template-columns: auto minmax(0, 1fr); }
+  .bottom > :last-child { grid-column: 1 / -1; }
+  .note { display: none; }
+}

@@ -12,3 +12,13 @@ multilink_demo/output*/
 *.mkv
 *.webm
 *.h264
+
+# viewer: npm packages and local test screenshots stay local. viewer/dist/ (the built
+# viewer) is committed so the repo opens by double-clicking viewer/dist/index.html.
+viewer/node_modules/
+viewer/.screens/
+viewer/.build-*/
+viewer/.screens-*/
+
+# local Python environment (recreate with: python -m venv .venv, then pip install -r edge_mlc/requirements.txt)
+.venv/

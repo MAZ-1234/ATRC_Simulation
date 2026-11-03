@@ -1,0 +1,168 @@
+/*
+ * Tour card (key G). Flat surface-2 panel with a border-strong edge; radius-4 like other
+ * floating surfaces. No entrance animation and no transitions (DESIGN.md 9, 13).
+ *
+ *   frame    [Chapter 2 of 5  2.10 km Trees block Starlink  Playing at 4x   Previous Pause Next Stop]
+ *            [Passing the trees, Proposed's view was usable ...                                   ]
+ *   theatre / narrow
+ *            [Chapter 2 of 5  Playing at 4x                       Previous Pause Next Stop]
+ *            [2.10 km Trees block Starlink                                                ]
+ *            [Passing the trees, Proposed's view was usable ...                           ]
+ */
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: var(--space-2) var(--space-3) var(--space-2) var(--space-4);
+  background: var(--color-surface-2);
+  color: var(--color-text-1);
+  border: var(--stroke-hair) solid var(--color-border-strong);
+  border-radius: var(--radius-4);
+  overflow: hidden;
+}
+
+/* Frame: centred over the bottom rows of the timeline (manoeuvre, uploads, axis), just
+   above the playback bar, so the ribbons and the cursor stay in view. */
+.frame {
+  position: fixed;
+  z-index: 700; /* above the frame, below theatre (800), popovers (900) and tooltips (1000) */
+  left: 50%;
+  bottom: calc(var(--rp-playback-h, 56px) + var(--space-2));
+  transform: translateX(-50%);
+  width: min(960px, calc(100vw - 2 * var(--page-margin)));
+  box-shadow: var(--shadow-pop);
+}
+
+/* Theatre: in the top bar between the clock and the camera controls; it gives up width
+   before the clock does. */
+.theatre {
+  flex: 0 10 720px;
+}
+
+/* ---------------------------------------------------------------- head row */
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  min-height: var(--control-h);
+}
+.step {
+  flex: none;
+  font-size: var(--fs-13);
+  font-weight: var(--fw-medium);
+  color: var(--color-text-2);
+  white-space: nowrap;
+}
+.title {
+  flex: 0 1 auto;
+  min-width: 0;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--fs-18);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-tight);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.status {
+  flex: 0 2 auto;
+  min-width: 0;
+  font-size: var(--fs-13);
+  color: var(--color-text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.controls {
+  flex: none;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* Three lines in theatre and on narrow screens: the title gets a line of its own. */
+.theatre .head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "step status controls"
+    "title title title";
+  row-gap: 2px;
+  column-gap: var(--space-3);
+}
+.theatre .step { grid-area: step; }
+.theatre .status { grid-area: status; }
+.theatre .controls { grid-area: controls; }
+.theatre .title { grid-area: title; }
+@media (max-width: 1023px) {
+  .frame .head {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "step status controls"
+      "title title title";
+    row-gap: 2px;
+    column-gap: var(--space-3);
+  }
+  .frame .step { grid-area: step; }
+  .frame .status { grid-area: status; }
+  .frame .controls { grid-area: controls; }
+  .frame .title { grid-area: title; }
+  .theatre { order: 3; flex-basis: 100%; }
+}
+
+.claim {
+  margin: 0;
+  padding-bottom: 2px;
+  font-size: var(--fs-15);
+  line-height: var(--lh-ui);
+  color: var(--color-text-1);
+}
+
+/* The claim is a button: it opens "How we got these numbers" (ClaimExplainer). */
+.claimBtn {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  border-radius: var(--radius-1);
+}
+.claimBtn:hover { background: var(--color-hover-overlay); }
+.claimBtn:hover .how { text-decoration: underline; }
+.how {
+  margin-left: var(--space-2);
+  font-size: var(--fs-13);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-2);
+  white-space: nowrap;
+}
+
+/* 2px text-1 line along the bottom edge (same mark as the active chapter chip). */
+.progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--color-text-1);
+  transform-origin: left center;
+}
+
+@media (max-width: 599px) {
+  .frame .head, .theatre .head {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      "step status"
+      "controls controls"
+      "title title";
+  }
+  .frame .controls, .theatre .controls { margin-left: 0; }
+}

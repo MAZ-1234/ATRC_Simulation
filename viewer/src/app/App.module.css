@@ -1,0 +1,28 @@
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}
+/* Each view fills <main>. Views set their own internal grid; the shell supplies the page margin. */
+.main {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: var(--space-3) var(--page-margin) var(--page-margin);
+  animation: viewIn var(--dur-fast) var(--ease);
+}
+@keyframes viewIn { from { opacity: 0; } to { opacity: 1; } }
+
+.dataError {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: var(--space-8) var(--page-margin);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+.productName {
+  font-family: var(--font-display);
+  font-size: var(--fs-21);
+  font-weight: var(--fw-semibold);
+}

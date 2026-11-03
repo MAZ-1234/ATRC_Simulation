@@ -1,0 +1,129 @@
+/* Playback bar (DESIGN.md 6.1 bottom row, 6.1.2, 6.1.3, 7). It sits on --color-bg in the
+   Replay frame's playback cell, which provides the inline page margin. */
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  min-width: 0;
+  height: 100%;
+}
+
+/* ---------------------------------------------------------------- transport */
+.transport {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: none;
+}
+
+/* Play / pause: the one solid control in the bar, 40px (DESIGN.md 7), ink on bg. */
+.play {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: var(--stroke-hair) solid var(--color-text-1);
+  border-radius: var(--radius-2);
+  background: var(--color-text-1);
+  color: var(--color-bg);
+  transition: opacity var(--dur-fast) var(--ease);
+}
+.play:hover:not(:disabled) { opacity: 0.88; }
+.play:disabled {
+  background: transparent;
+  border-color: var(--color-border);
+  color: var(--color-text-3);
+}
+
+.events { display: inline-flex; align-items: center; gap: 2px; }
+/* Disabled icon buttons stay borderless (no earlier / later event is not an error). */
+.events button:disabled { border-color: transparent; }
+
+/* ---------------------------------------------------------------- clock */
+.middle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.clockGroup {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-4);
+  flex: none;
+}
+.clock {
+  display: inline-flex;
+  align-items: baseline;
+  font-family: var(--font-display);
+  line-height: var(--lh-tight);
+  white-space: nowrap;
+}
+.now {
+  font-size: var(--fs-24);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-1);
+}
+.total {
+  font-size: var(--fs-18);
+  font-weight: var(--fw-medium);
+  color: var(--color-text-2);
+  white-space: pre;
+}
+.km {
+  font-family: var(--font-display);
+  font-size: var(--fs-18);
+  font-weight: var(--fw-medium);
+  color: var(--color-text-1);
+  white-space: nowrap;
+}
+
+.status,
+.noTrace,
+.loading {
+  min-width: 0;
+  font-size: var(--fs-13);
+  line-height: var(--lh-ui);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.status { color: var(--color-text-1); }
+.noTrace { color: var(--color-text-2); }
+.loading { color: var(--color-text-3); }
+
+/* ---------------------------------------------------------------- controls */
+.controls {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-5);
+  flex: none;
+}
+.speedCompact { display: inline-flex; align-items: center; gap: var(--space-1); }
+.filter {}
+.help { font-family: var(--font-display); font-weight: var(--fw-semibold); }
+
+/* Speed / playback popover content. */
+.menu { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-3); }
+.menuNote { font-size: var(--fs-12); color: var(--color-text-3); line-height: var(--lh-ui); }
+
+/* ---------------------------------------------------------------- compact 1024-1359 (6.1.2) */
+.compact { gap: var(--space-4); }
+.compact .controls { gap: var(--space-4); }
+.compact .now { font-size: var(--fs-21); }
+.compact .total, .compact .km { font-size: var(--fs-15); }
+.compact .clockGroup { gap: var(--space-3); }
+
+/* ---------------------------------------------------------------- narrow < 1024 (6.1.3) */
+.narrow { gap: var(--space-3); }
+.narrow .controls { gap: var(--space-2); }
+.narrow .middle { gap: var(--space-3); }
+.narrow .status, .narrow .noTrace, .narrow .loading { display: none; }
+@media (max-width: 599px) {
+  .narrow .total { display: none; }
+  .narrow .events { display: none; }
+}

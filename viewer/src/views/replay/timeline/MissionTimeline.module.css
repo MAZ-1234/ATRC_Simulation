@@ -1,0 +1,258 @@
+/* Mission timeline (DESIGN.md 6.1, 7, 8). Gutter = var(--gutter), shared with every
+   time-axis chart; plot sheet = surface-2 (drawn by the canvas); everything else quiet. */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.natural { overflow: visible; }
+
+/* ---------------------------------------------------------------- header */
+.header {
+  display: grid;
+  grid-template-columns: var(--gutter) minmax(0, 1fr);
+  align-items: center;
+  flex: none;
+}
+.headGutter { min-width: 0; }
+.headPlot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-width: 0;
+}
+.tally {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+  font-size: var(--fs-13);
+  color: var(--color-text-2);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.tally b { font-weight: var(--fw-semibold); color: var(--color-text-1); }
+.tallyItem { display: inline-flex; align-items: center; gap: 6px; }
+.ctrlName { font-weight: var(--fw-medium); }
+.tallyNote { color: var(--color-text-3); font-size: var(--fs-12); }
+
+/* Swatches shaped like the who-saw marks: a block above or below a centre line, a hatch. */
+.sw { display: inline-block; width: 12px; height: 6px; flex: none; }
+.swAbove { transform: translateY(-3px); box-shadow: 0 1px 0 var(--color-grid-strong); }
+.swBelow { transform: translateY(3px); box-shadow: 0 -1px 0 var(--color-grid-strong); }
+.swHatch { height: 12px; background: var(--hatch-bad); }
+
+.headRight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: none;
+  font-size: var(--fs-12);
+  color: var(--color-text-2);
+  white-space: nowrap;
+}
+.legendTear { display: inline-flex; }
+.swTear {
+  display: inline-block;
+  width: 14px;
+  height: 12px;
+  background: var(--color-status-bad-wash);
+  border-inline: 2px solid var(--color-status-bad);
+}
+.legendText { margin-right: var(--space-3); }
+.hint { color: var(--color-text-3); }
+
+/* ---------------------------------------------------------------- body */
+.body {
+  display: grid;
+  grid-template-columns: var(--gutter) minmax(0, 1fr);
+  flex: none;
+  min-width: 0;
+}
+.gutter { position: relative; min-width: 0; }
+.label {
+  position: absolute;
+  left: 0;
+  right: var(--space-3);
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-width: 0;
+  pointer-events: auto;
+}
+.labelText {
+  font-family: var(--font-display);
+  font-size: var(--fs-13);
+  font-weight: var(--fw-medium);
+  line-height: 1;
+  color: var(--color-text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ribbonName { font-size: var(--fs-15); font-weight: var(--fw-semibold); }
+.subValue { font-size: var(--fs-12); color: var(--color-text-2); white-space: nowrap; line-height: 1; }
+.subLabel { color: var(--color-text-3); font-weight: var(--fw-medium); }
+.subHint { font-size: var(--fs-12); color: var(--color-text-3); white-space: nowrap; line-height: 1; }
+.upSub {
+  position: absolute;
+  right: var(--space-3);
+  transform: translateY(-50%);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-medium);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.plot { position: relative; min-width: 0; }
+.tracks {
+  position: relative;
+  cursor: crosshair;
+  touch-action: pan-y;
+}
+.tracks:focus-visible { outline: var(--stroke-bold) solid var(--color-focus); outline-offset: 2px; }
+.canvas { position: absolute; left: 0; top: 0; display: block; }
+.labels { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; font-family: var(--font-ui); }
+
+.segText { font-size: var(--fs-12); fill: var(--color-text-2); }
+.manText { font-size: var(--fs-12); fill: var(--color-text-2); }
+.manBack { fill: var(--color-surface-2); }
+.upText { font-size: var(--fs-12); fill: var(--color-text-2); }
+.reqMark { fill: var(--color-surface-2); stroke: var(--color-text-2); stroke-width: 1.5px; }
+.doneMark { stroke: var(--color-surface-2); stroke-width: 1px; }
+.missMark { stroke: var(--color-status-bad); stroke-width: 2px; stroke-linecap: round; fill: none; }
+
+.cursor {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--stroke-bold);
+  background: var(--color-cursor);
+  pointer-events: none;
+  will-change: transform;
+  z-index: 3;
+}
+.hoverLine {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--color-text-3);
+  pointer-events: none;
+  z-index: 2;
+}
+.sel {
+  position: absolute;
+  top: 0;
+  background: var(--color-hover-overlay);
+  border-inline: var(--stroke-hair) solid var(--color-text-2);
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* First-load draw-in of the ribbon pair (DESIGN.md 9.2): a sheet-coloured cover slides
+   away to the right once, over 1.2 s. Not rendered at all under reduced motion. */
+.cover {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: var(--color-surface-2);
+  transform-origin: right center;
+  animation: reveal 1.2s linear forwards;
+  pointer-events: none;
+  z-index: 1;
+}
+@keyframes reveal { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+@media (prefers-reduced-motion: reduce) { .cover { display: none; } }
+
+.axis {
+  position: absolute;
+  left: 0;
+  right: 0;
+  cursor: ew-resize;
+  touch-action: none;
+}
+.axisSvg { position: absolute; left: 0; top: 0; overflow: visible; }
+.chip {
+  position: absolute;
+  left: 0;
+  top: 2px;
+  height: 18px;
+  padding: 0 6px;
+  align-items: center;
+  border-radius: var(--radius-1);
+  background: var(--color-text-1);
+  color: var(--color-surface-1);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-medium);
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  will-change: transform;
+  z-index: 3;
+  /* Mask the tick labels the chip slides over (the axis is not re-rendered per frame). */
+  box-shadow: 0 0 0 4px var(--color-surface-1);
+}
+
+/* ---------------------------------------------------------------- readout */
+.ro { display: flex; flex-direction: column; gap: var(--space-1); min-width: 260px; }
+.roTitle {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  font-family: var(--font-display);
+  font-size: var(--fs-15);
+  font-weight: var(--fw-semibold);
+}
+.roTitle span:last-child { color: var(--color-text-2); font-weight: var(--fw-medium); }
+.roTable { border-collapse: collapse; font-size: var(--fs-13); width: 100%; }
+.roTable th {
+  font-weight: var(--fw-regular);
+  color: var(--color-text-2);
+  text-align: left;
+  vertical-align: top;
+  padding: 1px var(--space-3) 1px 0;
+  white-space: nowrap;
+}
+.roTable td { padding: 1px var(--space-2) 1px 0; vertical-align: top; }
+.roTable td:last-child { padding-right: 0; }
+.roHead td, .roHead th { font-size: var(--fs-12); color: var(--color-text-3); padding-top: var(--space-1); }
+.linkName { font-weight: var(--fw-medium) !important; }
+.measured { color: var(--color-text-2); }
+.degraded { font-weight: var(--fw-semibold); }
+.down { color: var(--color-text-2); }
+.verdictRow th, .verdictRow td { padding-top: var(--space-1); }
+.usable { font-weight: var(--fw-semibold); }
+.notUsable { color: var(--color-status-bad); font-weight: var(--fw-semibold); }
+.ended { color: var(--color-text-3); }
+.reason { display: block; font-size: var(--fs-12); color: var(--color-text-2); white-space: normal; }
+.roCtx {
+  margin-top: var(--space-1);
+  padding-top: var(--space-1);
+  border-top: var(--stroke-hair) solid var(--color-border);
+  font-size: var(--fs-12);
+  color: var(--color-text-2);
+  line-height: var(--lh-ui);
+}
+.upCtx { display: block; }
+
+/* ---------------------------------------------------------------- responsive */
+@media (max-width: 1199px) {
+  .hint { display: none; }
+}
+@media (max-width: 1023px) {
+  .header { height: auto !important; padding: var(--space-2) 0; grid-template-columns: minmax(0, 1fr); }
+  .headGutter { display: none; }
+  .headPlot { flex-wrap: wrap; row-gap: var(--space-2); }
+  .tally { flex-wrap: wrap; row-gap: 2px; }
+  .label { right: var(--space-2); }
+}

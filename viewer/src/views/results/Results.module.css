@@ -1,0 +1,175 @@
+/* Results view (DESIGN.md 6.2, 6.2.1, 6.2.2). Reads tokens only. */
+
+.view {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 880px);
+  column-gap: var(--space-6);
+  align-items: start;
+  min-width: 0;
+}
+
+/* ---------------------------------------------------------------- rail (index + source) */
+.rail {
+  position: sticky;
+  top: calc(var(--appbar-h) + var(--space-3));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding-top: var(--space-2);
+  max-height: calc(100vh - var(--appbar-h) - var(--space-5));
+  overflow-y: auto;
+}
+.railList { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; }
+.railLink {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  border-left: var(--stroke-bold) solid var(--color-border);
+  background: transparent;
+  padding: 5px var(--space-3);
+  font-size: var(--fs-15);
+  line-height: var(--lh-ui);
+  color: var(--color-text-2);
+}
+.railLink:hover { color: var(--color-text-1); background: var(--color-hover-overlay); }
+.railLink[aria-current] {
+  border-left-color: var(--color-text-1);
+  color: var(--color-text-1);
+  font-weight: var(--fw-medium);
+}
+.source {
+  margin: 0;
+  padding-left: calc(var(--space-3) + var(--stroke-bold));
+  font-size: var(--fs-13);
+  line-height: var(--lh-ui);
+  color: var(--color-text-2);
+}
+.source dt { font-weight: var(--fw-medium); color: var(--color-text-2); margin-top: var(--space-3); }
+.source dt:first-child { margin-top: 0; }
+.source dd { margin: 2px 0 0; color: var(--color-text-3); font-size: var(--fs-12); }
+.source dd.sourceDir { color: var(--color-text-1); font-size: var(--fs-13); }
+
+/* narrow (DESIGN.md 6.2.2): the rail becomes a sticky select under the app bar */
+.picker {
+  position: sticky;
+  top: var(--appbar-h);
+  z-index: 10;
+  margin: calc(-1 * var(--space-3)) calc(-1 * var(--page-margin)) 0;
+  padding: var(--space-2) var(--page-margin);
+  background: var(--color-bg);
+  border-bottom: var(--stroke-hair) solid var(--color-border);
+}
+
+/* ---------------------------------------------------------------- content column */
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--panel-gap);
+  min-width: 0;
+}
+.header { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-2) 0 var(--space-3); }
+.headRow { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; }
+.title { font-size: var(--fs-21); }
+.headScope { font-size: var(--fs-13); color: var(--color-text-2); }
+.intro { font-size: var(--fs-15); line-height: var(--lh-prose); color: var(--color-text-2); max-width: 68ch; }
+.inlineLink {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: var(--color-text-1);
+  font-weight: var(--fw-medium);
+  text-decoration: underline;
+  text-decoration-color: var(--color-border-strong);
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.inlineLink:hover { text-decoration-color: var(--color-text-1); }
+/* The losses section is set apart in the index so it is never read as an afterthought. */
+.railList > li:last-child { margin-top: var(--space-3); }
+
+/* one block: claim, chart, caveat, replay link */
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--panel-pad) var(--panel-pad);
+  background: var(--color-surface-1);
+  border: var(--stroke-hair) solid var(--color-border);
+  border-radius: var(--radius-3);
+  min-width: 0;
+  scroll-margin-top: calc(var(--appbar-h) + var(--space-3));
+}
+.blockHead { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; }
+.blockTitle {
+  font-family: var(--font-display);
+  font-size: var(--fs-18);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-tight);
+  color: var(--color-text-2);
+}
+.scope { font-size: var(--fs-13); color: var(--color-text-2); }
+.claim {
+  font-family: var(--font-ui);
+  font-size: var(--fs-24);
+  font-weight: var(--fw-medium);
+  /* DESIGN-GAP: --lh-prose (1.5) is written for 15px prose; at 24px it reads as double
+     spacing, so the claim uses --lh-ui. */
+  line-height: var(--lh-ui);
+  max-width: 40ch;
+  color: var(--color-text-1);
+  text-wrap: pretty;
+}
+.detail {
+  font-size: var(--fs-15);
+  line-height: var(--lh-prose);
+  color: var(--color-text-2);
+  max-width: 68ch;
+  margin-top: calc(-1 * var(--space-1));
+}
+.chart { min-width: 0; margin-top: var(--space-2); }
+/* The chart title sits under a 24px claim: keep it one step quieter than the block title. */
+.chart figure > div:first-child h3 { font-size: var(--fs-15); color: var(--color-text-1); }
+.caveat { font-size: var(--fs-13); line-height: var(--lh-ui); color: var(--color-text-2); max-width: 96ch; }
+.caveatLabel { font-weight: var(--fw-medium); color: var(--color-text-1); }
+
+.replayRow { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2) var(--space-3); }
+.replayNote { font-size: var(--fs-12); color: var(--color-text-3); }
+
+/* ---------------------------------------------------------------- where Proposed does not win */
+.notWin {
+  display: flex;
+  flex-direction: column;
+  gap: var(--panel-gap);
+  min-width: 0;
+  scroll-margin-top: calc(var(--appbar-h) + var(--space-3));
+}
+.sectionHead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-6) 0 var(--space-2);
+  border-top: var(--stroke-hair) solid var(--color-border-strong);
+  margin-top: var(--space-5);
+}
+.sectionTitle { font-size: var(--fs-21); }
+.sectionIntro { font-size: var(--fs-15); line-height: var(--lh-prose); color: var(--color-text-2); max-width: 68ch; }
+
+/* comparison matrix marks (configuration ink, never status colours) */
+.mClear { fill: var(--color-ctrl-other); stroke: none; }
+.mOverlap { fill: var(--color-surface-2); stroke: var(--color-ctrl-other); stroke-width: var(--stroke-data); }
+.mNone { stroke: var(--color-grid-strong); stroke-width: var(--stroke-data); }
+.mLegend { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); font-size: var(--fs-13); color: var(--color-text-2); }
+.mLegend > span { display: inline-flex; align-items: center; gap: 6px; }
+
+.emptyWrap { max-width: 760px; padding: var(--space-6) 0; }
+
+/* ---------------------------------------------------------------- breakpoints */
+@media (max-width: 1359px), (min-width: 1360px) and (max-height: 827px) {
+  .view { grid-template-columns: 200px minmax(0, 880px); column-gap: var(--space-5); }
+}
+@media (max-width: 1023px) {
+  .view { grid-template-columns: minmax(0, 1fr); row-gap: var(--space-3); }
+}

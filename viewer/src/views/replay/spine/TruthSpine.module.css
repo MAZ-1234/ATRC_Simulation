@@ -1,0 +1,251 @@
+/*
+ * Truth spine (DESIGN.md 6.1 "Spine", 7 "Link health row"). The cell supplies surface-1,
+ * the rules and the padding; the spine fills the cell's content box and never scrolls the
+ * page. Sections stack: Links now, Needed now, Uploads queued (uploads take the rest and
+ * scroll inside themselves if a long queue ever needs it).
+ */
+.root {
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  overflow: hidden;
+  /* Clip, but leave room for the 2px focus ring (offset 2px) of the full-width link rows
+     and the needed-now line, which a plain overflow: hidden cut off at the sides. */
+  overflow: clip;
+  overflow-clip-margin: 6px;
+}
+/* Wide and compact: the spine must never grow the consoles row (whose 1fr track would
+   otherwise size to content). It fills the cell; a long upload queue scrolls inside. */
+.wide, .compact { contain: size; }
+.compact { gap: 10px; }
+
+.root h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-18);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-tight);
+  color: var(--color-text-1);
+}
+.compact h2 { font-size: var(--fs-15); }
+
+.links, .needed { flex: none; min-width: 0; }
+.uploads { flex: 1 1 auto; min-height: 0; min-width: 0; display: flex; flex-direction: column; }
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+.legend { flex-wrap: nowrap; gap: var(--space-3); font-size: var(--fs-12); white-space: nowrap; }
+.compact .head { margin-bottom: var(--space-1); }
+.root h2 { white-space: nowrap; }
+.ctrlKey { display: inline-flex; gap: var(--space-3); font-size: var(--fs-12); white-space: nowrap; }
+
+.quiet { font-size: var(--fs-13); line-height: var(--lh-ui); color: var(--color-text-3); }
+
+/* ---------------------------------------------------------------- link health rows */
+/* Tooltip anchors wrap whole rows: make them full-width blocks. */
+.root .rowAnchor { display: flex; flex-direction: column; width: 100%; }
+.linkRows { display: flex; flex-direction: column; }
+.linkRows { gap: 10px; }
+.compact .linkRows { gap: 6px; }
+
+.linkRow {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) 104px;
+  grid-template-rows: 16px 16px;
+  grid-template-areas:
+    "name band value"
+    "name band sub";
+  column-gap: var(--space-3);
+  align-items: center;
+  border-radius: var(--radius-1);
+  outline-offset: 2px;
+}
+.compact .linkRow { grid-template-columns: 56px minmax(0, 1fr) 96px; grid-template-rows: 13px 13px; column-gap: var(--space-2); }
+.linkRow:hover { background: var(--color-hover-overlay); }
+
+.linkName {
+  grid-area: name;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-display);
+  font-size: var(--fs-13);
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+}
+.linkSwatch {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: var(--radius-1);
+  border: 1px solid;
+}
+
+.band {
+  grid-area: band;
+  position: relative;
+  align-self: stretch;
+  min-width: 0;
+  background: var(--color-surface-2);
+  box-shadow: inset 0 -1px 0 var(--color-grid-strong);
+}
+.bandCanvas { position: absolute; inset: 0; display: block; }
+.bandUnknown {
+  background: transparent;
+  box-shadow: none;
+  border: 1px dotted var(--color-status-unknown);
+}
+
+.linkValue {
+  grid-area: value;
+  justify-self: end;
+  font-size: var(--fs-15);
+  line-height: 16px;
+  white-space: nowrap;
+}
+.compact .linkValue { font-size: var(--fs-13); line-height: 13px; }
+/* Nominal rows stay quiet (DESIGN.md 9.1): the value is plain text-2. */
+.valueGood { color: var(--color-text-2); }
+.valueDegraded { color: var(--color-text-1); font-weight: var(--fw-semibold); }
+.valueDown {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--color-text-1);
+  font-weight: var(--fw-semibold);
+}
+.valueQuiet { color: var(--color-text-3); font-size: var(--fs-13); }
+.hatchSwatch {
+  width: 16px;
+  height: 8px;
+  flex: none;
+  background: var(--hatch-neutral);
+  box-shadow: inset 0 0 0 1px var(--color-status-unknown);
+}
+
+.linkSub {
+  grid-area: sub;
+  justify-self: end;
+  max-width: 100%;
+  font-size: var(--fs-12);
+  line-height: 16px;
+  color: var(--color-text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.compact .linkSub { line-height: 13px; }
+.handover { color: var(--color-text-1); font-weight: var(--fw-medium); }
+.unknownRow .linkName { opacity: 0.7; }
+
+/* ---------------------------------------------------------------- needed now */
+.neededBody { display: flex; flex-direction: column; gap: 2px; margin-top: var(--space-1); }
+.neededText { font-size: var(--fs-15); line-height: var(--lh-ui); color: var(--color-text-2); border-radius: var(--radius-1); }
+.neededLead { color: var(--color-text-1); font-weight: var(--fw-medium); }
+.compact .neededText { font-size: var(--fs-13); }
+.tipLevels { margin-top: var(--space-1); color: var(--color-text-2); }
+
+/* ---------------------------------------------------------------- uploads queued */
+.uploadBody {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.upList { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+/* The list scrolls, which clips anything outside it: draw the focus ring inside the row. */
+.upHead:focus-visible { outline-offset: -2px; }
+.upItem { display: flex; flex-direction: column; gap: 2px; }
+.upHead {
+  width: 100%;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: var(--fs-13);
+  line-height: var(--lh-ui);
+  border-radius: var(--radius-1);
+}
+.upName { color: var(--color-text-1); font-weight: var(--fw-medium); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.upSize { color: var(--color-text-2); white-space: nowrap; }
+
+.upBars { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: var(--space-3); }
+.upCell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: var(--fs-12);
+  line-height: 16px;
+}
+.compact .upCell { line-height: 14px; }
+.upTrack {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 24px;
+  height: 6px;
+  background: var(--color-surface-sunken);
+}
+.upFill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border: 1px solid;
+  box-sizing: border-box;
+}
+.upValue { flex: none; color: var(--color-text-2); white-space: nowrap; }
+.more { font-size: var(--fs-12); line-height: var(--lh-ui); color: var(--color-text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: none; }
+.backlog { font-size: var(--fs-12); line-height: var(--lh-ui); color: var(--color-text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: none; }
+.backlog span { font-weight: var(--fw-regular); }
+
+/* ---------------------------------------------------------------- narrow (6.1.3): one full-width row */
+.narrow {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  grid-template-areas:
+    "links needed"
+    "links uploads";
+  column-gap: var(--space-5);
+  row-gap: var(--space-3);
+}
+.narrow .links { grid-area: links; }
+.narrow .needed { grid-area: needed; }
+.narrow .uploads { grid-area: uploads; }
+.narrow h2 { font-size: var(--fs-15); }
+
+/* ---------------------------------------------------------------- presenter mode
+ * Presenter mode raises the root to 18px (DESIGN.md 4) but the link rows above use px
+ * line boxes sized for 15px. Integrator fix: grow the line boxes with the type so value
+ * and secondary lines do not overlap, and let a section legend drop under its title
+ * instead of being clipped. */
+.head { flex-wrap: wrap; row-gap: 2px; }
+:global(:root[data-presenter="on"]) .linkRow { grid-template-rows: 18px 18px; grid-template-columns: 64px minmax(0, 1fr) 120px; }
+:global(:root[data-presenter="on"]) .linkValue,
+:global(:root[data-presenter="on"]) .linkSub { line-height: 18px; }
+:global(:root[data-presenter="on"]) .compact .linkRow { grid-template-rows: 16px 16px; grid-template-columns: 68px minmax(0, 1fr) 104px; }
+/* Compact + presenter (a 1280x720 projector): the 328px row cannot hold the band legend as
+   well, so it is dropped there; each row's tooltip still explains truth vs measured. */
+:global(:root[data-presenter="on"]) .compact .links .legend { display: none; }
+:global(:root[data-presenter="on"]) .compact .linkValue,
+:global(:root[data-presenter="on"]) .compact .linkSub { line-height: 16px; }
+:global(:root[data-presenter="on"]) .compact .linkRows { gap: 4px; }
+:global(:root[data-presenter="on"]) .wide { gap: var(--space-2); }
+:global(:root[data-presenter="on"]) .wide .linkRows { gap: 4px; }
+:global(:root[data-presenter="on"]) .compact { gap: 6px; }
+/* Compact + presenter: Radio and 4G rows keep one line (value); their RTT and loss stay in
+   the row tooltip. Starlink keeps its second line, which carries the handover countdown. */
+:global(:root[data-presenter="on"]) .compact .linkRows > :nth-child(odd) .linkRow { grid-template-rows: 20px 0; }
+:global(:root[data-presenter="on"]) .compact .linkRows > :nth-child(odd) .linkSub { display: none; }
+:global(:root[data-presenter="on"]) .compact .linkRows > :nth-child(odd) .linkValue { align-self: center; line-height: 20px; }

@@ -1,0 +1,217 @@
+/* Design tokens: the ONLY place hex values may appear (DESIGN.md section 12; the
+   outdoor palette of section 9.3 lives in the camera-tile code).
+   Sections 2 (colour), 3 (type), 4 (spacing/radius/strokes), 5 (layout), 9 (motion). */
+
+/* ---------------------------------------------------------------- light (default) */
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+  /* 2.1 base */
+  --color-bg:              #E8ECEB;
+  --color-surface-1:       #F6F8F7;
+  --color-surface-2:       #FFFFFF;
+  --color-surface-sunken:  #DDE3E2;
+  --color-surface-video:   #0F1416;
+  --color-text-1:          #18211F;
+  --color-text-2:          #4F5B60;
+  --color-text-3:          #5E6A70;
+  --color-text-on-video:   #E9EEF0;
+  --color-border:          #C5CDCE;
+  --color-border-strong:   #848F95;
+  --color-grid:            #E1E6E6;
+  --color-grid-strong:     #C5CDCE;
+  --color-focus:           #18211F;
+  --color-cursor:          #18211F;
+  --color-zone-wash:       #E3E9E7;
+  /* 2.2 controllers */
+  --color-ctrl-baseline:       #8A8F98;
+  --color-ctrl-baseline-edge:  #5C626B;
+  --color-ctrl-baseline-text:  #5C626B;
+  --color-ctrl-proposed:       #1764C0;
+  --color-ctrl-proposed-text:  #1764C0;
+  --color-ctrl-other:          #4F5B60;
+  /* 2.3 links */
+  --color-link-radio:         #5B8C5A;
+  --color-link-radio-text:    #43703F;
+  --color-link-starlink:      #7A5EA8;
+  --color-link-starlink-text: #7A5EA8;
+  --color-link-lte:           #D08A3C;
+  --color-link-lte-edge:      #9A5E1C;
+  --color-link-lte-text:      #8A5317;
+  --link-degraded-alpha:      0.30;
+  /* 2.4 status */
+  --color-status-bad:     #B42318;
+  --color-status-warn:    #855800; /* DESIGN.md 2.4 says #8F5F00; darkened so the warn badge text keeps 4.5:1 on its wash over --color-bg (4.08 before) */
+  --color-status-good:    #26775B;
+  --color-status-unknown: #7E898E;
+  --color-status-bad-wash:  rgba(180, 35, 24, 0.10);
+  --color-status-warn-wash: rgba(143, 95, 0, 0.10);
+  /* 4 elevation */
+  --shadow-pop: 0 1px 2px rgba(16, 22, 25, 0.12), 0 6px 20px rgba(16, 22, 25, 0.16);
+  /* overlay strip inside camera tiles (60% black, both themes) */
+  --color-video-strip: rgba(0, 0, 0, 0.6);
+  /* hover overlay: 4% text-1 (DESIGN.md 7) */
+  --color-hover-overlay: rgba(24, 33, 31, 0.04);
+}
+
+/* ---------------------------------------------------------------- dark (explicit choice) */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg:              #131A1D;
+  --color-surface-1:       #1B2327;
+  --color-surface-2:       #212B30;
+  --color-surface-sunken:  #101619;
+  --color-surface-video:   #0B0F11;
+  --color-text-1:          #E4E9EA;
+  --color-text-2:          #A0ACB1;
+  --color-text-3:          #8A979F;
+  --color-text-on-video:   #E9EEF0;
+  --color-border:          #344149;
+  --color-border-strong:   #6B7A83;
+  --color-grid:            #2A3439;
+  --color-grid-strong:     #3C4A52;
+  --color-focus:           #E4E9EA;
+  --color-cursor:          #E4E9EA;
+  --color-zone-wash:       #1F292E;
+  --color-ctrl-baseline:       #A3A8B0;
+  --color-ctrl-baseline-edge:  #A3A8B0;
+  --color-ctrl-baseline-text:  #A3A8B0;
+  --color-ctrl-proposed:       #5B9BE6;
+  --color-ctrl-proposed-text:  #5B9BE6;
+  --color-ctrl-other:          #A0ACB1;
+  --color-link-radio:         #86B985;
+  --color-link-radio-text:    #86B985;
+  --color-link-starlink:      #A98BD9;
+  --color-link-starlink-text: #A98BD9;
+  --color-link-lte:           #E3A25A;
+  --color-link-lte-edge:      #E3A25A;
+  --color-link-lte-text:      #E3A25A;
+  --link-degraded-alpha:      0.35;
+  --color-status-bad:     #F97066;
+  --color-status-warn:    #E3B341;
+  --color-status-good:    #5CC8A0;
+  --color-status-unknown: #6E7B82;
+  --color-status-bad-wash:  rgba(249, 112, 102, 0.14);
+  --color-status-warn-wash: rgba(227, 179, 65, 0.14);
+  --shadow-pop: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.5);
+  --color-video-strip: rgba(0, 0, 0, 0.6);
+  --color-hover-overlay: rgba(228, 233, 234, 0.04);
+}
+
+/* ---------------------------------------------------------------- dark (system, no stored choice) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --color-bg:              #131A1D;
+    --color-surface-1:       #1B2327;
+    --color-surface-2:       #212B30;
+    --color-surface-sunken:  #101619;
+    --color-surface-video:   #0B0F11;
+    --color-text-1:          #E4E9EA;
+    --color-text-2:          #A0ACB1;
+    --color-text-3:          #8A979F;
+    --color-text-on-video:   #E9EEF0;
+    --color-border:          #344149;
+    --color-border-strong:   #6B7A83;
+    --color-grid:            #2A3439;
+    --color-grid-strong:     #3C4A52;
+    --color-focus:           #E4E9EA;
+    --color-cursor:          #E4E9EA;
+    --color-zone-wash:       #1F292E;
+    --color-ctrl-baseline:       #A3A8B0;
+    --color-ctrl-baseline-edge:  #A3A8B0;
+    --color-ctrl-baseline-text:  #A3A8B0;
+    --color-ctrl-proposed:       #5B9BE6;
+    --color-ctrl-proposed-text:  #5B9BE6;
+    --color-ctrl-other:          #A0ACB1;
+    --color-link-radio:         #86B985;
+    --color-link-radio-text:    #86B985;
+    --color-link-starlink:      #A98BD9;
+    --color-link-starlink-text: #A98BD9;
+    --color-link-lte:           #E3A25A;
+    --color-link-lte-edge:      #E3A25A;
+    --color-link-lte-text:      #E3A25A;
+    --link-degraded-alpha:      0.35;
+    --color-status-bad:     #F97066;
+    --color-status-warn:    #E3B341;
+    --color-status-good:    #5CC8A0;
+    --color-status-unknown: #6E7B82;
+    --color-status-bad-wash:  rgba(249, 112, 102, 0.14);
+    --color-status-warn-wash: rgba(227, 179, 65, 0.14);
+    --shadow-pop: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.5);
+    --color-video-strip: rgba(0, 0, 0, 0.6);
+    --color-hover-overlay: rgba(228, 233, 234, 0.04);
+  }
+}
+
+/* ---------------------------------------------------------------- theme-independent */
+:root {
+  /* 2.5 patterns (HTML elements; SVG uses #pat-hatch-* from the shell <defs>) */
+  --hatch-size: 5px;
+  --hatch-neutral: repeating-linear-gradient(135deg, var(--color-status-unknown) 0 1px, transparent 1px var(--hatch-size));
+  --hatch-bad:     repeating-linear-gradient(135deg, var(--color-status-bad) 0 1.5px, transparent 1.5px var(--hatch-size));
+  --hatch-warn:    repeating-linear-gradient(45deg,  var(--color-status-warn) 0 1px, transparent 1px var(--hatch-size));
+
+  /* 3 typography */
+  --font-ui:      "Barlow", system-ui, sans-serif;
+  --font-display: "Barlow Semi Condensed", "Barlow", sans-serif;
+  font-size: 15px;
+  font-family: var(--font-ui);
+  font-variant-numeric: tabular-nums lining-nums;
+  --fs-12: 0.8rem;
+  --fs-13: 0.8667rem;
+  --fs-15: 1rem;
+  --fs-18: 1.2rem;
+  --fs-21: 1.4rem;
+  --fs-24: 1.6rem;
+  --fs-36: 2.4rem;
+  --lh-tight: 1.15;
+  --lh-ui:    1.35;
+  --lh-prose: 1.5;
+  --fw-regular: 400; --fw-medium: 500; --fw-semibold: 600;
+
+  /* 4 spacing, radius, elevation, strokes */
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
+  --radius-0: 0;
+  --radius-1: 2px;
+  --radius-2: 4px;
+  --radius-3: 6px;
+  --radius-4: 8px;
+  --shadow-0: none;
+  --stroke-hair: 1px;
+  --stroke-data: 1.5px;
+  --stroke-bold: 2px;
+  --tile-ring: 2px;
+
+  /* 5 layout (wide >= 1360px and >= 828px tall; compact 1024-1359, or wide but shorter;
+     narrow < 1024). DESIGN-GAP: DESIGN.md 5.1 gives width-only breakpoints, but the wide
+     Replay frame needs 828px of height (48 + 64 + 380 + 280 + 56), so a wide but short
+     screen (1366x768, 1440x800 projectors) uses the compact layout. Mirrors state/hooks.ts bp(). */
+  --page-margin: 24px;
+  --panel-gap: var(--space-3);
+  --panel-pad: 16px;
+  --gutter: 168px;          /* timeline label column shared by every time-axis chart */
+  --appbar-h: 48px;
+  --control-h: 28px;        /* SegmentedControl option / select / button height */
+
+  /* 9 motion */
+  --dur-fast: 120ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+:root[data-presenter="on"] {
+  font-size: 18px;
+  --stroke-hair: 1.5px; --stroke-data: 2.25px; --stroke-bold: 3px; --tile-ring: 3px;
+  --control-h: 32px;
+}
+
+@media (max-width: 1359px), (min-width: 1360px) and (max-height: 827px) {
+  :root { --page-margin: 16px; --panel-pad: 12px; --gutter: 136px; --appbar-h: 44px; }
+}
+@media (max-width: 1023px) {
+  :root { --gutter: 96px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-fast: 0ms; }
+}
