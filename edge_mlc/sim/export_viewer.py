@@ -45,7 +45,7 @@ FORMAT_VERSION = 1
 LINKS = [l["name"] for l in CFG["links"]]
 CAMS = ("front", "rear")
 AGE_CAP_S = 99.0                     # frame/command age is capped here (never seen = cap)
-NOMINAL_SET = ["Baseline", "Proposed", "Baseline + duplicate video",
+NOMINAL_SET = ["Baseline", "Proposed", "Proposed - FEC", "Baseline + duplicate video",
                "Proposed (urgent_first)", "Oracle: perfect link choice"]
 OTHER_SET = ["Baseline", "Proposed"]
 STATES = list(S.Driver.OUT)

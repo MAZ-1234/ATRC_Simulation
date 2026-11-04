@@ -36,21 +36,33 @@ CFG = yaml.safe_load(open(os.path.join(os.path.dirname(__file__), "..", "config"
 CONFIGS = {
     "Baseline":                   ("baseline", {}),
     "Baseline + duplicate video": ("baseline", {"dup_video": True}),
-    "Proposed":                   ("proposed", {}),                            # adaptive policy
-    "Proposed - mission":         ("proposed", {"mission": False}),            # Part A off
-    "Proposed - uploads":         ("proposed", {"uploads": False}),            # = video_first policy
-    "Proposed - predict":         ("proposed", {"predict": False}),
+    # Proposed = mission-aware allocation + adaptive uploads + predictive switching
+    # + two-stream FEC on the protected camera (Feature 3). The ablations switch
+    # one part off; "Proposed - FEC" is the controller without redundancy.
+    "Proposed":                   ("proposed", {"redundancy": "two_stream"}),   # adaptive policy
+    "Proposed - mission":         ("proposed", {"mission": False, "redundancy": "two_stream"}),  # Part A off
+    "Proposed - uploads":         ("proposed", {"uploads": False, "redundancy": "two_stream"}),  # = video_first
+    "Proposed - predict":         ("proposed", {"predict": False, "redundancy": "two_stream"}),
+    "Proposed - FEC":             ("proposed", {"redundancy": "none"}),         # Feature 3 off
     # Experiment B references, nominal only
-    "Proposed (urgent_first)":    ("proposed", {"policy": "urgent_first"}),
+    "Proposed (urgent_first)":    ("proposed", {"policy": "urgent_first", "redundancy": "two_stream"}),
     "Baseline (no shaping)":      ("baseline", {"upload_mode": "greedy"}),
     # upper bounds for handover (read ground truth, not deployable)
     "Oracle: perfect link choice": ("oracle", {"cls": OracleLinkChoice}),
     "Oracle: every up link":      ("oracle", {"cls": OracleAllUp}),
+    # upper bounds above run the decider WITHOUT redundancy (compare them with "Proposed - FEC")
+    # other redundancy schemes, in place of Proposed's two-stream FEC
+    "Proposed + base-layer copy":  ("proposed", {"redundancy": "base_copy"}),
+    "Proposed + full copy":        ("proposed", {"redundancy": "full_copy"}),
+    "Proposed + FEC":              ("proposed", {"redundancy": "fec"}),
+    "Proposed + graded two-stream": ("proposed", {"redundancy": "graded"}),
 }
 MAIN = ["Baseline", "Baseline + duplicate video", "Proposed",
-        "Proposed - mission", "Proposed - uploads", "Proposed - predict"]
+        "Proposed - mission", "Proposed - uploads", "Proposed - predict", "Proposed - FEC"]
 REFS = ["Proposed (urgent_first)", "Baseline (no shaping)"]
 ORACLES = ["Oracle: perfect link choice", "Oracle: every up link"]
+REDUNDANT = ["Proposed + base-layer copy", "Proposed + full copy", "Proposed + FEC",
+             "Proposed + graded two-stream"]
 HANDOVER_VARIANTS = ["overlap", "overlap_harsh"]     # only these let link choice matter
 
 
@@ -62,8 +74,9 @@ def make(name):
     if kind == "baseline":
         return cfg, Baseline(cfg, dup_video=opt.get("dup_video", False),
                              upload_mode=opt.get("upload_mode", "shaped"))
-    feats = {k: v for k, v in opt.items() if k != "policy"}
-    return cfg, Proposed(cfg, features=feats, upload_policy=opt.get("policy", "adaptive"))
+    feats = {k: v for k, v in opt.items() if k not in ("policy", "redundancy")}
+    return cfg, Proposed(cfg, features=feats, upload_policy=opt.get("policy", "adaptive"),
+                         redundancy=opt.get("redundancy"))
 
 
 def one(job):
@@ -91,7 +104,7 @@ def build_jobs(nom_seeds, var_seeds, cap_seeds):
     jobs = [(c, v, s, None) for v in VARIANTS for c in MAIN
             for s in range(nom_seeds if v == "nominal" else var_seeds)]
     jobs += [(c, "nominal", s, None) for c in REFS for s in range(nom_seeds)]
-    jobs += [(c, v, s, None) for v in ["nominal"] + HANDOVER_VARIANTS for c in ORACLES
+    jobs += [(c, v, s, None) for v in ["nominal"] + HANDOVER_VARIANTS for c in ORACLES + REDUNDANT
              for s in range(nom_seeds if v == "nominal" else var_seeds)]
     cjobs = [(c, "nominal", s, {"crater_cap": float(k)}) for k in (750, 1000, 1500, 2500, 4000)
              for c in ("Baseline", "Proposed", "Proposed - mission") for s in range(cap_seeds)]
@@ -146,13 +159,19 @@ def main():
     print(summarise(nom, ["config"])[cols].round(1).to_string(index=False))
     print("--- Experiment A: transition windows (nominal)")
     acols = ["config", "n_transition_events", "useful_transition_pct", "interruptions_transition"]
-    ac = ["Baseline", "Baseline + duplicate video", "Proposed", "Proposed - mission"]
+    ac = ["Baseline", "Baseline + duplicate video", "Proposed - FEC", "Proposed", "Proposed - mission"]
     print(summarise(nom[nom.config.isin(ac)], ["config"])[acols].round(1).to_string(index=False))
     print("--- Handover headroom: interruptions vs the oracles")
-    hc = ["Baseline", "Baseline + duplicate video", "Proposed - predict", "Proposed"] + ORACLES
+    hc = ["Baseline", "Baseline + duplicate video", "Proposed - predict", "Proposed - FEC", "Proposed"] + ORACLES
     h = runs[runs.config.isin(hc) & runs.variant.isin(["nominal"] + HANDOVER_VARIANTS)]
     print(h.pivot_table(index="config", columns="variant", values=["interruptions", "useful_view_pct",
                                                                      "dup_overhead_pct"]).loc[hc].round(1).to_string())
+    print("--- Redundancy across links (overlap + overlap_harsh)")
+    rc = ["Proposed - FEC", "Proposed"] + REDUNDANT + ORACLES
+    rr = runs[runs.config.isin(rc) & runs.variant.isin(HANDOVER_VARIANTS)]
+    rcols = ["useful_view_pct", "longest_interruption_s", "blind_m", "full_level_pct",
+             "dup_overhead_pct", "video_delay_p95_ms"]
+    print(rr.groupby("config")[rcols].mean().loc[rc].round(1).to_string())
     print("--- Experiment B: uploads (nominal)")
     ucols = ["config", "scan_drive_s", "lidar_crater_s", "still_s", "clip_s",
              "needed_fps_while_req_drive", "needed_level_while_req_stopped",

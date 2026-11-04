@@ -43,9 +43,18 @@ export interface Attribution {
   winnerLink: LinkName | null;
   /** link: the winner made a predictive move on the needed camera shortly before. */
   predicted: boolean;
+  /** link: the winner runs two-stream FEC and, at most of those moments, was sending the
+   *  needed camera across several links (samples.dup), so one link dropping did not cost it. */
+  redundant: boolean;
 }
 
 interface RunSide { run: RunData; idx: number[] }
+
+/** True when the run's config sends the protected camera with a redundancy scheme (FEC). */
+export function usesFec(run: RunData): boolean {
+  const r = run.meta.options?.redundancy;
+  return typeof r === "string" && r !== "none";
+}
 
 function needOf(run: RunData, k: number) {
   const man = dec(run, "man", run.samples.man[k]) as Manoeuvre | null;
@@ -168,6 +177,7 @@ export function attribute(winner: RunSide, loser: RunSide): Attribution {
   const dead = new Map<LinkName, number>();
   const alive = new Map<LinkName, number>();
   let firstLinkT: number | null = null;
+  let linkDup = 0;
   let n = 0;
   for (const k of loser.idx) {
     if (Lr.samples.useful[k] === 1) continue;
@@ -202,6 +212,7 @@ export function attribute(winner: RunSide, loser: RunSide): Attribution {
       firstLinkT = firstLinkT ?? Lr.samples.t[k];
       dead.set(bad, (dead.get(bad) ?? 0) + 1);
       if (wName) alive.set(wName, (alive.get(wName) ?? 0) + 1);
+      if (W.samples.dup[j] === 1) linkDup++;
       continue;
     }
     if (otherCut(Lr, k) === false && otherCut(W, j) === true) { counts.bandwidth++; continue; }
@@ -212,6 +223,7 @@ export function attribute(winner: RunSide, loser: RunSide): Attribution {
     levelMan: mode(mans), loserW: mode(lw), winnerW: mode(ww),
     deadLink: mode(dead), winnerLink: mode(alive),
     predicted: firstLinkT !== null && predictedBefore(W, firstLinkT),
+    redundant: usesFec(W) && counts.link > 0 && linkDup >= 0.5 * counts.link,
   };
 }
 

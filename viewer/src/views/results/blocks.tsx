@@ -241,7 +241,9 @@ export const ORACLES = ["Oracle: perfect link choice", "Oracle: every up link"];
 
 export function Handover() {
   const variants = ["nominal", "overlap", "overlap_harsh"].filter((v) => has(ORACLES[0], v) && has("Proposed", v));
-  const configs = ["Baseline", "Proposed - predict", "Proposed", ...ORACLES].filter((x) => variants.every((v) => has(x, v)));
+  const configs = ["Baseline", "Proposed - predict", "Proposed - FEC", "Proposed", ...ORACLES].filter((x) => variants.every((v) => has(x, v)));
+  // The oracles run Proposed WITHOUT FEC, so their like-for-like comparison is "Proposed - FEC".
+  const ref = configs.includes("Proposed - FEC") ? "Proposed - FEC" : "Proposed";
   const rows = useMemo(() => configRows(configs), []); // eslint-disable-line
   const facets = useMemo(() => [
     ...variants.map((v) => ({ ...facet("interruptions"), key: `${v}|interruptions`, title: `${variantLabel(v)}: view interruptions (count)` })),
@@ -257,12 +259,16 @@ export function Handover() {
   const claim: Parts = [];
   const detail: Parts = [];
   if (first) {
-    const [o, p] = fpair("interruptions", at(ORACLES[0], first, "interruptions"), at("Proposed", first, "interruptions"));
-    claim.push(`On the ${lc(variantLabel(first))} mission, a perfect link choice has ${o} interruptions; `, c("Proposed"), ` has ${p}.`);
+    const [o, p] = fpair("interruptions", at(ORACLES[0], first, "interruptions"), at(ref, first, "interruptions"));
+    claim.push(`On the ${lc(variantLabel(first))} mission, a perfect link choice has ${o} interruptions; `, c(ref), ` has ${p}.`);
+    if (ref !== "Proposed") {
+      const [, q] = fpair("interruptions", at(ORACLES[0], first, "interruptions"), at("Proposed", first, "interruptions"));
+      detail.push("With two-stream FEC on, ", c("Proposed"), ` has ${q} there. `);
+    }
   }
   if (last && last !== first) {
-    const [o, p] = fpair("interruptions", at(ORACLES[0], last, "interruptions"), at("Proposed", last, "interruptions"));
-    detail.push(`On the ${lc(variantLabel(last))} variant, a perfect link choice has ${o} against `, c("Proposed"), `'s ${p}. `);
+    const [o, p] = fpair("interruptions", at(ORACLES[0], last, "interruptions"), at(ref, last, "interruptions"));
+    detail.push(`On the ${lc(variantLabel(last))} variant, a perfect link choice has ${o} against `, c(ref), `'s ${p}. `);
     const [eu, pu] = fpair("useful_view_pct", at(ORACLES[1], last, "useful_view_pct"), at("Proposed", last, "useful_view_pct"));
     detail.push(`Sending on every up link reaches ${eu} usable view there, against `, c("Proposed"), `'s ${pu}. `);
   }
@@ -287,7 +293,7 @@ export function Handover() {
           ariaLabel={textOf(claim)}
           caption={caption(variants.map((v) => `${nOf("Proposed", v) ?? "–"} (${lc(variantLabel(v))})`).join(", "), ENGINE_NOTE)} />
       }
-      caveat={<>both oracles run Proposed and then overrule the needed camera's link with the simulator's true link state, which no deployed controller can see (sim/oracles.py). They are upper bounds, not deployable.</>}
+      caveat={<>both oracles run Proposed without two-stream FEC (so compare them with Proposed - FEC) and then overrule the needed camera's link with the simulator's true link state, which no deployed controller can see (sim/oracles.py). They are upper bounds, not deployable.</>}
       replay={<ReplayLink spec={spec} preload note="The oracle is on the left console for comparison only." />}
     />
   );
@@ -385,12 +391,14 @@ export const ABLATION: Record<string, string> = {
   "Proposed - mission": "mission-aware camera allocation",
   "Proposed - uploads": "adaptive upload scheduling",
   "Proposed - predict": "predictive switching",
+  "Proposed - FEC": "two-stream FEC",
 };
 const ABLATION_SUB: Record<string, string> = {
   Proposed: "all parts on",
   "Proposed - mission": "allocation by manoeuvre off",
   "Proposed - uploads": "uploads always after video",
   "Proposed - predict": "predictive switching off",
+  "Proposed - FEC": "two-stream FEC off",
   Baseline: "reference",
 };
 

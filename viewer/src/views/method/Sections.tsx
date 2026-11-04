@@ -296,13 +296,18 @@ const CONFIG_TEXT: Record<string, ReactNode> = {
   "Baseline": <>Threshold steering with fixed preference, fixed priorities and shaped uploads.</>,
   "Baseline + duplicate video": <>Baseline that also sends both cameras on the next link at all times.</>,
   "Baseline (no shaping)": <>Baseline with greedy, TCP-like uploads that fill the modem queue. A reference only.</>,
-  "Proposed": <>Mission-aware allocation, adaptive uploads and predictive switching.</>,
+  "Proposed": <>Mission-aware allocation, adaptive uploads, predictive switching and two-stream FEC on the protected camera.</>,
   "Proposed - mission": <>Proposed with fixed camera needs instead of the needs table.</>,
   "Proposed - uploads": <>Proposed with the video_first upload policy.</>,
   "Proposed - predict": <>Proposed without the predictor: no early switch, duplicate or handover rule.</>,
+  "Proposed - FEC": <>Proposed without two-stream FEC: the protected camera rides one link, with a second only when the predictor duplicates it.</>,
+  "Proposed + base-layer copy": <>Proposed with a cheaper scheme in place of two-stream FEC: full stream on one link, base stream on every other live link.</>,
+  "Proposed + full copy": <>Proposed with a whole copy of the full stream on every live link in place of two-stream FEC; the first copy wins.</>,
+  "Proposed + FEC": <>Proposed with the full stream coded so any n−1 of n live links rebuild it, and no base stream.</>,
+  "Proposed + graded two-stream": <>Proposed with base on every live link and the full stream needing any two links (rejected design: lower quality with two links).</>,
   "Proposed (urgent_first)": <>Proposed with the urgent_first upload policy.</>,
-  "Oracle: perfect link choice": <>Runs Proposed, then reads the simulator&apos;s ground truth: the protected camera stays on its link if that link truly stays within the limits and capacity for the next {sec(CODE.oracleLookS)}, otherwise it moves to the first link that does. Commands go on every link that is truly up.</>,
-  "Oracle: every up link": <>Runs Proposed, then reads ground truth and sends the protected camera, and the commands, on every link that is truly up.</>,
+  "Oracle: perfect link choice": <>Runs Proposed without FEC, then reads the simulator&apos;s ground truth: the protected camera stays on its link if that link truly stays within the limits and capacity for the next {sec(CODE.oracleLookS)}, otherwise it moves to the first link that does. Commands go on every link that is truly up.</>,
+  "Oracle: every up link": <>Runs Proposed without FEC, then reads ground truth and sends the protected camera, and the commands, on every link that is truly up.</>,
 };
 
 export function ConfigsSection() {

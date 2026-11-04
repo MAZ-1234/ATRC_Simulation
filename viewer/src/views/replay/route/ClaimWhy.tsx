@@ -42,7 +42,7 @@ interface Evidence {
   modal: { lv: LadderLevel; share: number } | null;
   /** Share of the scope where the camera NOT needed was paused or at 1 fps. */
   otherCut: number | null;
-  /** Share of the scope where the needed camera was duplicated on two links. */
+  /** Share of the scope where the needed camera was sent on two or more links (duplicate or FEC). */
   dup: number;
   /** Changes of the needed camera's primary link inside the scope. */
   switches: number;
@@ -138,7 +138,8 @@ const MAN_PHRASE: Record<string, string> = {
 function causePhrase(c: Cause, a: Attribution): string {
   switch (c) {
     case "level": return "sending the picture size the manoeuvre needs (mission awareness)";
-    case "link": return a.predicted ? "moving off a failing link before it dropped (prediction)" : "being on a link that stayed up";
+    case "link": return a.redundant ? "sending the needed camera across several links (two-stream FEC)"
+      : a.predicted ? "moving off a failing link before it dropped (prediction)" : "being on a link that stayed up";
     case "bandwidth": return "pausing the camera nobody needed to free bandwidth (mission awareness)";
     default: return "where random dropouts happened to fall";
   }
@@ -161,6 +162,7 @@ function causeSentence(c: Cause, a: Attribution, win: Side, lose: Side): string 
         : `Mostly picture level: ${W} happened to send the ${need ?? "larger"} px picture that ${man} needs, while ${Lo} held the needed camera lower because its capacity estimate said the higher level would not fit.`;
     case "link":
       if (!proposedWins) return `Mostly link choice: ${Lo}'s needed camera was on ${dead} when it faltered, while ${W}'s was on ${alive}, which stayed up.`;
+      if (a.redundant) return `Mostly two-stream FEC: ${W} was sending the needed camera across several links at once, so when ${dead} faltered the pieces on the other links (mostly ${alive}) still rebuilt the picture, while ${Lo} was relying on ${dead}.`;
       return a.predicted
         ? `Mostly predictive switching: ${W} saw ${dead} failing and moved the needed camera to ${alive} before it dropped, while ${Lo} stayed on ${dead} until after it had failed.`
         : `Mostly link choice: when ${dead} failed, ${W}'s needed camera was already on ${alive}, while ${Lo} was still on ${dead} and only switched after the drop.`;
@@ -350,6 +352,7 @@ export function ClaimWhy({ left: L, right: R, chapterIndex }: { left: Side; righ
               <li>Detects the manoeuvre from throttle and steering, so it knows which camera the operator needs and at what quality.</li>
               <li>Gives that camera its bandwidth first, and pauses or trickles the camera nobody needs.</li>
               <li>Predicts how long each link will stay usable. It duplicates the needed camera on a backup link, then switches before the failure.</li>
+              <li>Two-stream FEC: the needed camera goes out as a small base stream on every live link plus the full stream coded across them, so losing any one link keeps full quality and a single surviving link still shows a picture.</li>
               <li>Adaptive uploads: requested files go first while stopped or in precision mode, video goes first while driving.</li>
             </ul>
           </div>

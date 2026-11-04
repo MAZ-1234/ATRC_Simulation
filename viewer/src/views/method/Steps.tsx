@@ -193,6 +193,27 @@ export function ProposedSteps({ sc, p, demo }: { sc: Scenario; p: DeciderParams;
       ),
     },
     {
+      title: "Protect the needed camera with two-stream FEC across every live link",
+      detail: (
+        <>
+          <p>
+            Each captured frame of the protected camera is sent twice: a small <b>base stream</b> (the mode&apos;s lowest allowed level) and the
+            {" "}<b>full stream</b> at the level step 3 chose. With n live links:
+          </p>
+          <ul className={s.rules}>
+            <li>The base stream goes whole on every live link, so any single link that survives still shows a picture.</li>
+            <li>The full stream is erasure coded into n pieces, one per link, so that any n−1 pieces rebuild the frame: losing any one link keeps full quality.</li>
+            <li>With two live links that means a whole copy of the full stream on each (no base stream); with one live link it sends exactly what step 3 chose.</li>
+            <li>The first copy of a capture to arrive is shown; a later full-quality copy of the same capture upgrades it.</li>
+          </ul>
+          <p>
+            The predictor (step 4) still picks the link the full stream starts on. The other camera and the commands are not coded.
+            Cost: the extra data shown as <Code>dup_overhead_pct</Code> in Results. The car code does not send coded streams yet; this runs in the simulator only.
+          </p>
+        </>
+      ),
+    },
+    {
       title: "Schedule uploads around the protected view",
       detail: (
         <p>
